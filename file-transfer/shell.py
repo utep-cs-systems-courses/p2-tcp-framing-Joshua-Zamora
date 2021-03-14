@@ -3,7 +3,7 @@ import sys
 import re
 
 from myreadline import myreadline
-from fileClient import send_file
+from fileClient import send_file, recieve_file
 
 while True:
     if 'PS1' in os.environ:
@@ -23,8 +23,8 @@ while True:
             remote_file = args[2][args[2].index(":") + 1:]
             host = args[2][:args[2].index(":")]
             send_file(local_file, remote_file, host)
-            print(remote_file)
         else:
             local_file = args[2]
             remote_file = args[1][args[1].index(":") + 1:]
             host = args[1][:args[1].index(":")]
+            recieve_file(local_file, remote_file, host)

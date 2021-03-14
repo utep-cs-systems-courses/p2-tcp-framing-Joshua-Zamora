@@ -33,30 +33,37 @@ while True:
         data = conn.recv(1024).decode()
         delim = data.index(":")
         msg_length = int(data[:delim])
-        file_name = data[delim + 1:msg_length + delim + 1]
-        data = data[msg_length + delim + 1:]
-        file_descriptor = os.open(file_name, os.O_CREAT | os.O_WRONLY)
-        
-        full_msg = ""
-        msg = ""
-        new_msg = True
-        while data:
-            if new_msg:
-                delim = data.index(":")
-                msg_length = int(data[:delim])
-            
-                msg = data[delim + 1:]
-                new_msg = False
-            else:
-                msg = data
+        rs = data[delim + 1]
+        file_name = data[delim + 2:msg_length + delim + 1]
 
-            full_msg += msg
-            msg_length -= len(msg)
-            data = conn.recv(1024).decode()
+        if rs == "s":
+            file_descriptor = os.open(file_name, os.O_CREAT | os.O_WRONLY)
+            data = data[msg_length + delim + 1:]
+            delim = data.index(":")
+            msg_length = int(data[:delim])
+            data = data[delim + 1:]
+            full_msg = ""
+            while data:
+                full_msg += data
+                msg_length -= len(data)
+                data = conn.recv(1024).decode()
             
-            if msg_length == 0:
-                os.write(file_descriptor, full_msg.encode())
-                break
+                if msg_length == 0:
+                    os.write(file_descriptor, full_msg.encode())
+                    break
+            
+        else:
+            file_descriptor = os.open(file_name, os.O_RDONLY)
+            file_size = os.path.getsize(file_name)
+            chunk = os.read(file_descriptor, 1024)
+            conn.send("{0}:{1}".format(file_size, chunk.decode()).encode())
+    
+            while True:
+                chunk = os.read(file_descriptor, 1024)
+                if not chunk:
+                    break
+                else:
+                    conn.send(chunk)
         
         conn.shutdown(socket.SHUT_WR)
 

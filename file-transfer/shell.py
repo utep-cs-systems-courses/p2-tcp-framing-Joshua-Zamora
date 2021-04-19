@@ -16,7 +16,7 @@ while True:
     if args[0] == "exit":
         os.write(2, "exiting shell...\n".encode())
         sys.exit(0)
-
+    
     elif args[0] == "scp":
         if ":" in args[2]:
             local_file = args[1]

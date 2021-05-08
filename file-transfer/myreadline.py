@@ -1,23 +1,27 @@
 from os import read, write
 
+buff = ""
+
 
 def myreadline():
+    global buff
     index = 0
     line = ""
-    buff = read(0, 100) # Buffer set with limit 100
-    string = buff.decode() # makes string interpretable
+    if buff == "":
+        buff = read(0, 100).decode() #set with limit 100
 
-    while index < len(string):
-        current_char = string[index]
-        if current_char == '\n': # checks for newline char
+    while index < len(buff):
+        current_char = buff[index]
+        
+        if current_char == '\n' and index + 1 == len(buff): # checks for newline char
+            buff = ""
             return line
-
+        
         line += current_char
         index += 1;
-
+        
         if index == 100:
-            buff =  read(0,100)
-            string = buff.decode()
+            buff = read(0,100).decode()
             index = 0
         
     return "" # EOF reached
